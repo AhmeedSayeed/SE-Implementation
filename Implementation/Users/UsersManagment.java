@@ -21,13 +21,15 @@ public class UsersManagment {
     {
         users.remove(user);
     }
-    public void editUser(User user, User newUser)
+    public void editUser(User user, User editedUser)
     {
         for(User u : users)
         {
             if(u.equals(user))
             {
-                u = newUser;
+                u.setUsername(editedUser.getUsername());
+                u.setEmail(editedUser.getEmail());
+                u.setPassword(editedUser.getPassword());
             }
         }
     }

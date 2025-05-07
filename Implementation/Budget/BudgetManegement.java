@@ -1,40 +1,41 @@
 package Budget;
 import Notifications.INotification;
-
+import Transactions.*;
+import Income.*;
 import java.util.*;
 
 public class BudgetManegement {
-    private ArrayList<Category> categories;
+    private TransactionsManagent transactionsManagent = new TransactionsManagent();
+    private IncomeManagement incomeManagement  = new IncomeManagement();
+    private ArrayList<Category> categories = new ArrayList<Category>();
     private INotification notification;
-    private Double totalIncome;
-
-    public  BudgetManegement()
-    {
-
-    }
 
     public ArrayList<Category> getCategories()
     {
         return categories;
     }
+    public ArrayList<Transaction> getTransactions()
+    {
+        return transactionsManagent.getTransactions();
+    }
+    public ArrayList<IncomeSource> getIncomeSources()
+    {
+        return incomeManagement.getIncomeSources();
+    }
     public Double getTotalIncome()
     {
-        return totalIncome;
+        return incomeManagement.getTotalIncome();
+    }
+    public Double getTotalExpense()
+    {
+        return transactionsManagent.getTotalExpense();
     }
 
-    public void setCategories(ArrayList<Category> categories)
-    {
-        this.categories = categories;
-    }
-    public void setTotalIncome(Double totalIncome)
-    {
-        this.totalIncome = totalIncome;
-    }
     public void addCategory(Category category)
     {
         categories.add(category);
     }
-    public void deleteCategory(Category category)
+    public void removeCategory(Category category)
     {
         categories.remove(category);
     }
@@ -43,7 +44,11 @@ public class BudgetManegement {
         for(Category c : categories)
         {
             if(c.equals(category))
-                c =  editedCategory;
+            {
+                c.setCategoryName(editedCategory.getCategoryName());
+                c.setTotalAmount(editedCategory.getTotalAmount());
+                c.setSpendingLimit(editedCategory.getSpendingLimit());
+            }
         }
     }
 

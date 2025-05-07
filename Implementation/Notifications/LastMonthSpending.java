@@ -7,8 +7,7 @@ public class LastMonthSpending implements INotification {
         System.out.println("Last Month Spending:");
         for(Category c :  budget.getCategories())
         {
-            if(c.getSpendingLimit() < c.getTotalAmount())
-                System.out.println(c.getTotalAmount() + " has been spending for " + c.getCategoryName() + " category.");
+            System.out.println(c.getTotalAmount() + " has been spending for " + c.getCategoryName() + " category.");
         }
         System.out.println();
     }

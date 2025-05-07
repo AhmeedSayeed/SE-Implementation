@@ -1,5 +1,6 @@
 package Notifications;
+import Budget.*;
 
 public interface INotification {
-    public void sendNotification();
+    public void sendNotification(BudgetManegement budget);
 }

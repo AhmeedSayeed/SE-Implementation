@@ -31,6 +31,32 @@ public class BudgetManegement {
         return transactionsManagent.getTotalExpense();
     }
 
+    public void addTransaction(Transaction transaction)
+    {
+        transactionsManagent.addTransaction(transaction);
+    }
+    public void removeTransaction(Transaction transaction)
+    {
+        transactionsManagent.removeTransaction(transaction);
+    }
+    public void editTransaction(Transaction transaction, Transaction editedTransaction)
+    {
+        transactionsManagent.editTransaction(transaction, editedTransaction);
+    }
+
+    public void addIncomeSource(IncomeSource incomeSource)
+    {
+        incomeManagement.addIncomeSource(incomeSource);
+    }
+    public void removeIncomeSource(IncomeSource incomeSource)
+    {
+        incomeManagement.removeIncomeSource(incomeSource);
+    }
+    public void editIncomeSource(IncomeSource incomeSource, IncomeSource editedIncomeSource)
+    {
+        incomeManagement.editIncomeSource(incomeSource, editedIncomeSource);
+    }
+
     public void addCategory(Category category)
     {
         categories.add(category);

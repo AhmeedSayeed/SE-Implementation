@@ -46,6 +46,6 @@ public class User {
 
     public Boolean validate()
     {
-        return validation.validate();
+        return validation.validate(this);
     }
 }

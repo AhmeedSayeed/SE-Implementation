@@ -7,6 +7,7 @@ public class User {
     private String email;
     private String password;
     private BudgetManegement budgetManegement = new BudgetManegement();
+    public IValidation validation;
 
     public User(String username, String email, String password)
     {
@@ -47,5 +48,14 @@ public class User {
     public void setBudgetManegement(BudgetManegement budgetManegement)
     {
         this.budgetManegement = budgetManegement;
+    }
+    public void setValidation(IValidation validation)
+    {
+        this.validation = validation;
+    }
+
+    public Boolean validate()
+    {
+        return validation.validate(this);
     }
 }

@@ -8,8 +8,6 @@ import java.util.*;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
-    static SignUp signUp = new SignUp();
-    static LogIn logIn = new LogIn();
     static UsersManagment usersManagment = new UsersManagment();
     static String filePath = "users.json";
     static Gson gson = new Gson();
@@ -88,6 +86,7 @@ public class Main {
             }
             if (choice == 1) {
                 User user = new User("", "", "");
+                user.setValidation(new SignUp());
                 Boolean first = true, signedUp = true;
                 do {
                     if(!first) {
@@ -101,7 +100,7 @@ public class Main {
                     readUserInfoSignUp(user);
                     first = false;
                 }
-                while (!signUp.validate(user));
+                while (!user.validate());
                 if(signedUp) {
                     curUser = user;
                     usersManagment.addUser(user);
@@ -112,6 +111,7 @@ public class Main {
                 break;
             } else if (choice == 2) {
                 User user = new User("", "", "");
+                user.setValidation(new LogIn());
                 Boolean first = true, loggedIn = true;
                 do {
                     if(!first) {
@@ -125,7 +125,7 @@ public class Main {
                     readUserInfoLogIn(user);
                     first = false;
                 }
-                while (!logIn.validate(user));
+                while (!user.validate());
                 if(loggedIn)
                     curUser = user;
                 else

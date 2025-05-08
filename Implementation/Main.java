@@ -466,7 +466,7 @@ public class Main {
         System.out.println("Select category to edit:");
         for (int i = 0; i < categories.size(); i++) {
             Category c = categories.get(i);
-            System.out.printf("%d. %s (Limit: %2f)\n",
+            System.out.printf("%d. %s (Limit: %.2f)\n",
                     i + 1, c.getCategoryName(), c.getSpendingLimit());
         }
 
@@ -488,9 +488,9 @@ public class Main {
     private static void generateReport(BudgetManegement budget) {
         budget.sendNotification();
         System.out.println("\n=== Financial Summary ===");
-        System.out.printf("Total Income: %2f\n", budget.getTotalIncome());
-        System.out.printf("Total Expenses: %2f\n", budget.getTotalExpense());
-        System.out.printf("Net Balance: %2f\n",
+        System.out.printf("Total Income: %.2f\n", budget.getTotalIncome());
+        System.out.printf("Total Expenses: %.2f\n", budget.getTotalExpense());
+        System.out.printf("Net Balance: %.2f\n",
                 budget.getTotalIncome() - budget.getTotalExpense());
     }
 }

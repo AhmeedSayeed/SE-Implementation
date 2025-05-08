@@ -78,6 +78,11 @@ public class BudgetManegement {
         }
     }
 
+    public void setNotification(INotification notification)
+    {
+        this.notification = notification;
+    }
+
     public void sendNotification()
     {
         notification.sendNotification(this);

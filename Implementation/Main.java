@@ -1,8 +1,5 @@
-import Users.User;
-import Users.UsersManagment;
-import Validation.IValidation;
-import Validation.SignUp;
-import Validation.LogIn;
+import Users.*;
+import Validation.*;
 import com.google.gson.*; // Gson Library to deal with JSON Files
 import java.io.*; // For File Reader/Writer
 import java.lang.reflect.Type;
@@ -14,7 +11,7 @@ public class Main {
     static SignUp signUp = new SignUp();
     static LogIn logIn = new LogIn();
     static UsersManagment usersManagment = new UsersManagment();
-    static String filePath = "Implementation/users.json";
+    static String filePath = "users.json";
     static Gson gson = new Gson();
     static Type userType = new TypeToken<ArrayList<User>>() {}.getType();
     static User curUser = new User("", "", "");
@@ -55,7 +52,7 @@ public class Main {
         user.setPassword(password);
     }
 
-    public static void addToJsonFile(User user) {
+    public static void updateUsers(User user) {
         try (FileReader fileReader = new FileReader(filePath)) {
             ArrayList<User> users = gson.fromJson(fileReader, userType);
             users.add(user);
@@ -77,9 +74,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        displayMenu();
         while (true)
         {
+            displayMenu();
             System.out.println("Please enter your choice: ");
             int choice = 0;
             try {
@@ -91,21 +88,48 @@ public class Main {
             }
             if (choice == 1) {
                 User user = new User("", "", "");
+                Boolean first = true, signedUp = true;
                 do {
+                    if(!first) {
+                        System.out.println("Do you want to sign up again? (y/n)");
+                        char answer = scanner.next().charAt(0);
+                        if(answer == 'n') {
+                            signedUp = false;
+                            break;
+                        }
+                    }
                     readUserInfoSignUp(user);
+                    first = false;
                 }
                 while (!signUp.validate(user));
-                curUser = user;
-                usersManagment.addUser(user);
-                addToJsonFile(user);
+                if(signedUp) {
+                    curUser = user;
+                    usersManagment.addUser(user);
+                    updateUsers(user);
+                }
+                else
+                    continue;
                 break;
             } else if (choice == 2) {
                 User user = new User("", "", "");
+                Boolean first = true, loggedIn = true;
                 do {
+                    if(!first) {
+                        System.out.println("Do you want to login again? (y/n)");
+                        char answer = scanner.next().charAt(0);
+                        if(answer == 'n') {
+                            loggedIn = false;
+                            break;
+                        }
+                    }
                     readUserInfoLogIn(user);
+                    first = false;
                 }
                 while (!logIn.validate(user));
-                curUser = user;
+                if(loggedIn)
+                    curUser = user;
+                else
+                    continue;
                 break;
             } else if (choice == 3) {
                 System.out.println("Exiting...");

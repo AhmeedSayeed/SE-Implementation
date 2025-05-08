@@ -11,7 +11,7 @@ public class SignUp implements IValidation {
     {
         Gson gson = new Gson();
         Type userType = new TypeToken<ArrayList<User>>() {}.getType();
-        try (FileReader fileReader = new FileReader("Implementation/users.json")){
+        try (FileReader fileReader = new FileReader("users.json")){
             ArrayList<User> users = gson.fromJson(fileReader, userType);
             for (User u : users) {
                 if (u.getUsername().equals(user.getUsername())) {

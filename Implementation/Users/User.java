@@ -1,13 +1,13 @@
 package Users;
-import Validation.*;
 import Budget.BudgetManegement;
+import Validation.*;
 
 public class User {
     private String username;
     private String email;
     private String password;
-    private BudgetManegement budgetManegement = new BudgetManegement();
-    public IValidation validation;
+    public transient IValidation validation;
+    public BudgetManegement budgetmanegement = new BudgetManegement();
 
     public User(String username, String email, String password)
     {
@@ -30,7 +30,7 @@ public class User {
     }
     public BudgetManegement getBudgetManegement()
     {
-        return this.budgetManegement;
+        return this.budgetmanegement;
     }
 
     public void setUsername(String username)
@@ -44,10 +44,6 @@ public class User {
     public void setPassword(String password)
     {
         this.password = password;
-    }
-    public void setBudgetManegement(BudgetManegement budgetManegement)
-    {
-        this.budgetManegement = budgetManegement;
     }
     public void setValidation(IValidation validation)
     {

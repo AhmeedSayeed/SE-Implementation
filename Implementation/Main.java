@@ -11,20 +11,34 @@ import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
 import java.util.*;
 
-
+/**
+ * This class is the entry point for the budgeting application. It handles user registration, login,
+ * and various operations related to income, transactions, and budget management.
+ */
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static UsersManagment usersManagment = new UsersManagment();
     static File usersFile = new File("users.json");
     static Gson gson = new Gson();
     static Type userType = new TypeToken<ArrayList<User>>() {}.getType();
-    static User curUser = new User("", "", "");
+    static User curUser = new User("", "", "",new BudgetManegement());
 
+    /**
+     * Validates the email format.
+     *
+     * @param email The email to validate.
+     * @return true if the email format is valid, false otherwise.
+     */
     public static boolean emailValidation(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         return email.matches(emailRegex);
     }
 
+    /**
+     * Reads user information during the sign-up process.
+     *
+     * @param user The user object to store the information.
+     */
     public static void readUserInfoSignUp(User user) {
         System.out.println("Please enter your username: ");
         String username = scanner.next();
@@ -45,6 +59,11 @@ public class Main {
         user.setPassword(password);
     }
 
+    /**
+     * Reads user information during the login process.
+     *
+     * @param user The user object to store the information.
+     */
     public static void readUserInfoLogIn(User user) {
         System.out.println("Please enter your username: ");
         String username = scanner.next();
@@ -55,7 +74,12 @@ public class Main {
         user.setPassword(password);
     }
 
-    public static void updateUsers(User user) {
+    /**
+     * Adds new user to file with the new user information.
+     *
+     * @param user The user object to add to the users file.
+     */
+    public static void addUser(User user) {
         ArrayList<User> users;
         if (usersFile.length() == 0)
             users = new ArrayList<>();
@@ -72,6 +96,29 @@ public class Main {
         }
     }
 
+    /**
+     * Updates the users file with the new user information.
+     *
+     * @param user The user object to add to the users file.
+     */
+    public static void updateUser(User user) {
+        try (FileReader fileReader = new FileReader(usersFile)) {
+            ArrayList<User> users = gson.fromJson(fileReader, userType);
+            for(User u : users) {
+                if(u.getUsername().equals(user.getUsername()))
+                    u.setBudgetManegement(user.getBudgetManegement());
+            }
+            try (FileWriter fileWriter = new FileWriter(usersFile)) {
+                gson.toJson(users, fileWriter);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Displays the main menu with options for sign-up, login, or exit.
+     */
     public static void displayMenu() {
         System.out.println("Welcome to our personal budgeting System");
         System.out.println("----------------------------------------");
@@ -81,8 +128,12 @@ public class Main {
         System.out.println("3. Exit");
     }
 
+    /**
+     * The main method which runs the application, allowing users to sign up, log in, or exit.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
-
         while (true) {
             displayMenu();
             System.out.println("Please enter your choice: ");
@@ -108,8 +159,11 @@ public class Main {
         }
     }
 
+    /**
+     * Handles the sign-up process.
+     */
     private static void handleSignUp() {
-        User user = new User("", "", "");
+        User user = new User("", "", "",new BudgetManegement());
         user.setValidation(new SignUp());
         Boolean first = true, signedUp = true;
         do {
@@ -128,13 +182,16 @@ public class Main {
         if (signedUp) {
             curUser = user;
             usersManagment.addUser(user);
-            updateUsers(user);
+            addUser(user);
             budgetManagementLoop();
         }
     }
 
+    /**
+     * Handles the login process.
+     */
     private static void handleLogin() {
-        User user = new User("", "", "");
+        User user = new User("", "", "",new BudgetManegement());
         user.setValidation(new LogIn());
         Boolean first = true, loggedIn = true;
         do {
@@ -156,6 +213,9 @@ public class Main {
         }
     }
 
+    /**
+     * Starts the budget management loop where the user can manage their budget, income, transactions, etc.
+     */
     private static void budgetManagementLoop() {
         BudgetManegement budget = curUser.getBudgetManegement();
         budget.setNotification(new LastMonthSpending());
@@ -181,7 +241,7 @@ public class Main {
                     budgetManagementMenu(budget);
                     break;
                 case 4:
-                    generateReport(budget);
+                    lastMonthNotification(budget);
                     break;
                 case 5:
                     return;
@@ -191,6 +251,11 @@ public class Main {
         }
     }
 
+    /**
+     * Manages the income section of the budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void incomeManagementMenu(BudgetManegement budget) {
         while (true) {
             System.out.println("\nIncome Management");
@@ -216,9 +281,15 @@ public class Main {
                 default:
                     System.out.println("Invalid choice");
             }
+            updateUser(curUser);
         }
     }
 
+    /**
+     * Manages the transactions section of the budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void transactionManagementMenu(BudgetManegement budget) {
         while (true) {
             System.out.println("\nTransaction Management");
@@ -244,16 +315,23 @@ public class Main {
                 default:
                     System.out.println("Invalid choice");
             }
+            updateUser(curUser);
         }
     }
 
+    /**
+     * Manages the budget categories.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void budgetManagementMenu(BudgetManegement budget) {
         while (true) {
             System.out.println("\nBudget Management");
             System.out.println("1. Add Category");
             System.out.println("2. Delete Category");
             System.out.println("3. Edit Category");
-            System.out.println("4. Back");
+            System.out.println("4. Generate Report");
+            System.out.println("5. Back");
             System.out.print("Enter choice: ");
 
             int choice = scanner.nextInt();
@@ -268,13 +346,22 @@ public class Main {
                     editCategory(budget);
                     break;
                 case 4:
+                    generateReport(budget);
+                    break;
+                case 5:
                     return;
                 default:
                     System.out.println("Invalid choice");
             }
+            updateUser(curUser);
         }
     }
 
+    /**
+     * Adds a new income source to the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void addIncomeSource(BudgetManegement budget) {
         System.out.print("Enter income name: ");
         String name = scanner.next();
@@ -284,6 +371,11 @@ public class Main {
         System.out.println("Income source added!");
     }
 
+    /**
+     * Deletes an existing income source from the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void deleteIncomeSource(BudgetManegement budget) {
         List<IncomeSource> sources = budget.getIncomeSources();
         if (sources.isEmpty()) {
@@ -294,7 +386,7 @@ public class Main {
         System.out.println("Select income to delete:");
         for (int i = 0; i < sources.size(); i++) {
             IncomeSource source = sources.get(i);
-            System.out.printf("%d. %s - %.2f\n", i + 1, source.getName(), source.getAmount());
+            System.out.printf("%d. %s - %.2f$\n", i + 1, source.getName(), source.getAmount());
         }
 
         int index = scanner.nextInt() - 1;
@@ -306,6 +398,11 @@ public class Main {
         }
     }
 
+    /**
+     * Edits an existing income source in the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void editIncomeSource(BudgetManegement budget) {
         List<IncomeSource> sources = budget.getIncomeSources();
         if (sources.isEmpty()) {
@@ -316,7 +413,7 @@ public class Main {
         System.out.println("Select income to edit:");
         for (int i = 0; i < sources.size(); i++) {
             IncomeSource source = sources.get(i);
-            System.out.printf("%d. %s - %.2f\n", i + 1, source.getName(), source.getAmount());
+            System.out.printf("%d. %s - %.2f$\n", i + 1, source.getName(), source.getAmount());
         }
 
         int index = scanner.nextInt() - 1;
@@ -333,6 +430,11 @@ public class Main {
         }
     }
 
+    /**
+     * Adds a new transaction to the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void addTransaction(BudgetManegement budget) {
         System.out.print("Enter transaction name: ");
         String name = scanner.next();
@@ -340,6 +442,11 @@ public class Main {
         String category = scanner.next();
         System.out.print("Enter amount: ");
         double amount = scanner.nextDouble();
+
+        if(!budget.getCategories().contains(category)) {
+            System.out.println("Invalid category");
+            return;
+        }
 
         Transaction transaction = new Transaction(name, category, amount);
         budget.addTransaction(transaction);
@@ -352,6 +459,11 @@ public class Main {
         System.out.println("Transaction added!");
     }
 
+    /**
+     * Deletes an existing transaction from the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void deleteTransaction(BudgetManegement budget) {
         List<Transaction> transactions = budget.getTransactions();
         if (transactions.isEmpty()) {
@@ -362,7 +474,7 @@ public class Main {
         System.out.println("Select transaction to delete:");
         for (int i = 0; i < transactions.size(); i++) {
             Transaction t = transactions.get(i);
-            System.out.printf("%d. %s - %s - %.2f\n",
+            System.out.printf("%d. %s - %s - %.2f$\n",
                     i + 1, t.getName(), t.getCategoryName(), t.getAmount());
         }
 
@@ -381,6 +493,11 @@ public class Main {
         }
     }
 
+    /**
+     * Edits an existing transaction in the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void editTransaction(BudgetManegement budget) {
         List<Transaction> transactions = budget.getTransactions();
         if (transactions.isEmpty()) {
@@ -391,7 +508,7 @@ public class Main {
         System.out.println("Select transaction to edit:");
         for (int i = 0; i < transactions.size(); i++) {
             Transaction t = transactions.get(i);
-            System.out.printf("%d. %s - %s - %.2f\n",
+            System.out.printf("%d. %s - %s - %.2f$\n",
                     i + 1, t.getName(), t.getCategoryName(), t.getAmount());
         }
 
@@ -422,17 +539,31 @@ public class Main {
         }
     }
 
+    /**
+     * Adds a new category to the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void addCategory(BudgetManegement budget) {
         System.out.print("Enter category name: ");
         String name = scanner.next();
-        System.out.print("Enter initial amount: ");
-        double amount = scanner.nextDouble();
         System.out.print("Enter spending limit: ");
         double limit = scanner.nextDouble();
-        budget.addCategory(new Category(name, amount, limit));
+
+        if(limit > budget.getTotalSpendingLimit()) {
+            System.out.println("This limit is  greater than the remaining Income");
+            return;
+        }
+
+        budget.addCategory(new Category(name, 0.0, limit));
         System.out.println("Category added!");
     }
 
+    /**
+     * Deletes an existing category from the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void deleteCategory(BudgetManegement budget) {
         List<Category> categories = budget.getCategories();
         if (categories.isEmpty()) {
@@ -443,7 +574,7 @@ public class Main {
         System.out.println("Select category to delete:");
         for (int i = 0; i < categories.size(); i++) {
             Category c = categories.get(i);
-            System.out.printf("%d. %s (Limit: %.2f)\n",
+            System.out.printf("%d. %s (Limit: %.2f$)\n",
                     i + 1, c.getCategoryName(), c.getSpendingLimit());
         }
 
@@ -456,6 +587,11 @@ public class Main {
         }
     }
 
+    /**
+     * Edits an existing category in the user's budget.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void editCategory(BudgetManegement budget) {
         List<Category> categories = budget.getCategories();
         if (categories.isEmpty()) {
@@ -466,7 +602,7 @@ public class Main {
         System.out.println("Select category to edit:");
         for (int i = 0; i < categories.size(); i++) {
             Category c = categories.get(i);
-            System.out.printf("%d. %s (Limit: %.2f)\n",
+            System.out.printf("%d. %s (Limit: %.2f$)\n",
                     i + 1, c.getCategoryName(), c.getSpendingLimit());
         }
 
@@ -477,6 +613,12 @@ public class Main {
             String name = scanner.next();
             System.out.print("Enter new limit: ");
             double limit = scanner.nextDouble();
+
+            if(limit > budget.getTotalSpendingLimit()) {
+                System.out.println("This limit is  greater than the remaining Income");
+                return;
+            }
+
             budget.editCategory(oldCategory,
                     new Category(name, oldCategory.getTotalAmount(), limit));
             System.out.println("Category updated");
@@ -485,12 +627,65 @@ public class Main {
         }
     }
 
+    /**
+     * Generates a report for the user about their spending.
+     *
+     * @param budget The user's budget management object.
+     */
     private static void generateReport(BudgetManegement budget) {
-        budget.sendNotification();
+        System.out.println("Income Sources:");
+        List<IncomeSource> sources = budget.getIncomeSources();
+        if (sources.isEmpty()) {
+            System.out.println("No income sources available");
+        }
+        else {
+            for (int i = 0; i < sources.size(); i++) {
+                IncomeSource source = sources.get(i);
+                System.out.printf("%d. %s - %.2f$\n", i + 1, source.getName(), source.getAmount());
+            }
+        }
+
+        System.out.println("Categories:");
+        List<Category> categories = budget.getCategories();
+        if (categories.isEmpty()) {
+            System.out.println("No categories available");
+        }
+        else {
+            for (int i = 0; i < categories.size(); i++) {
+                Category c = categories.get(i);
+                System.out.printf("%d. %s (Limit: %.2f$)\n",
+                        i + 1, c.getCategoryName(), c.getSpendingLimit());
+            }
+        }
+
+        System.out.println("Transactions:");
+        List<Transaction> transactions = budget.getTransactions();
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions available");
+        }
+        else {
+            for (int i = 0; i < transactions.size(); i++) {
+                Transaction t = transactions.get(i);
+                System.out.printf("%d. %s - %s - %.2f$\n",
+                        i + 1, t.getName(), t.getCategoryName(), t.getAmount());
+            }
+        }
+
+
         System.out.println("\n=== Financial Summary ===");
-        System.out.printf("Total Income: %.2f\n", budget.getTotalIncome());
-        System.out.printf("Total Expenses: %.2f\n", budget.getTotalExpense());
-        System.out.printf("Net Balance: %.2f\n",
+        System.out.printf("Total Income: %.2f$\n", budget.getTotalIncome());
+        System.out.printf("Total Expenses: %.2f$\n", budget.getTotalExpense());
+        System.out.printf("Net Balance: %.2f$\n",
                 budget.getTotalIncome() - budget.getTotalExpense());
+    }
+
+    /**
+     * Sends a notification for the user about their spending from the last month.
+     *
+     * @param budget The user's budget management object.
+     */
+    private static void lastMonthNotification(BudgetManegement budget) {
+        budget.setNotification(new LastMonthSpending());
+        budget.sendNotification();
     }
 }
